@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     private float speed;
     public float groundSpeed;
     public float airSpeed;
-    private float moveInput;
+    public float moveInput;
     private bool facingRight = true;
 
     // Jump
@@ -32,7 +32,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Collider2D _bodyCollider;
 
     // Layers
-    [SerializeField] private LayerMask groundLayer;
+    //[SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask boxLayer;
+    private LayerMask layersPlayerCanStand;
 
     // Interaction with water and sand
     // Grow and Shrink
@@ -43,40 +45,49 @@ public class PlayerController : MonoBehaviour
     private bool isInSand = false;
     public float shrinkTimeNeeded = 1f;
 
+    // Pushing Boxes
+    public bool standOnBox = false;
+    private bool pushingBox = false;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
         jumpForce = jumpForceS;
+        layersPlayerCanStand = LayerMask.GetMask("Ground", "Box");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isGrounded())
+        if (isGrounded(layersPlayerCanStand))
         {
             speed = groundSpeed;
         }
-        else if (!isGrounded())
+        else if (!isGrounded(layersPlayerCanStand))
         {
             speed = airSpeed;
         }
 
         // Player horizontal Movement
-        moveInput = Input.GetAxis("Horizontal");
+        moveInput = Input.GetAxisRaw("Horizontal"); 
+        //moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
+        //transform.Translate(new Vector2(moveInput * speed, 0) * Time.deltaTime * speed);
 
+        // Fliping player direction
         if ((facingRight == false && moveInput > 0) || (facingRight == true && moveInput < 0))
         {
             Flip();
         }
 
         // Player Jump
-        if (Input.GetButtonDown("Jump") && isGrounded())
+        if (Input.GetButtonDown("Jump") && isGrounded(layersPlayerCanStand))
         {
             rb.velocity = Vector2.zero;
-            rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+            //rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
 
 
@@ -104,6 +115,7 @@ public class PlayerController : MonoBehaviour
         // Grow & Shrink based on sand and water
         if (isInWater)
         {
+            timeInSand = 0f;
             timeInWater += Time.deltaTime;
             if(timeInWater >= growthTimeNeeded)
             {
@@ -111,10 +123,11 @@ public class PlayerController : MonoBehaviour
                 timeInWater = 0f;
             }
         }
-        else { timeInWater = 0f;}
+        //else { timeInWater = 0f;}
 
         if (isInSand)
         {
+            timeInWater = 0f;
             timeInSand += Time.deltaTime;
             if (timeInSand >= shrinkTimeNeeded)
             {
@@ -122,7 +135,11 @@ public class PlayerController : MonoBehaviour
                 timeInSand = 0f;
             }
         }
-        else { timeInSand = 0f; }
+        //else { timeInSand = 0f; }
+
+        // Determine whether the player is standing on a box
+        standOnBox = isGrounded(boxLayer);
+      
     }
 
 
@@ -143,7 +160,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Water"))
@@ -158,6 +174,7 @@ public class PlayerController : MonoBehaviour
 
 
 
+    // Manual change Size for debug
     private void changeSize(bool getBigger)
     {
         if (getBigger && playerSize != 3) // touch water, getting bigger
@@ -195,8 +212,26 @@ public class PlayerController : MonoBehaviour
     }
 
 
+
+    // When Pushing Boxes, change player movement into constant speed
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Box"))
+        {
+            pushingBox = true;
+        }
+    }
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Box"))
+        {
+            pushingBox = false;
+        }
+    }
+
+
     // Check if the player is grounded
-    private bool isGrounded()
+    private bool isGrounded(LayerMask layerToDetect)
     {
         // use box cast to detact ground
         RaycastHit2D raycastHit = Physics2D.BoxCast(
@@ -205,7 +240,7 @@ public class PlayerController : MonoBehaviour
             0,
             Vector2.down,
             0.1f,
-            groundLayer
+            layerToDetect
         );
 
         // In the air: raycastHit.collider is null

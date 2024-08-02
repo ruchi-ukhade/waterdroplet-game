@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Water
   - Sand
+  - Ground
+  - Box
   layers:
   - Default
   - TransparentFX
