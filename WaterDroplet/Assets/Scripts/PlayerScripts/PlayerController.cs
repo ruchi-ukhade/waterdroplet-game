@@ -5,6 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    //Ruchi
+    //Animation
+    public Animator animator;
+
     // Movement 
     private float speed;
     public float groundSpeed;
@@ -56,10 +60,13 @@ public class PlayerController : MonoBehaviour
 
         jumpForce = jumpForceS;
         layersPlayerCanStand = LayerMask.GetMask("Ground", "Box");
+
+        //Ruchi
+        //get the Animator component attached to the same GameObject
+        animator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
         if (isGrounded(layersPlayerCanStand))
         {
@@ -71,8 +78,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Player horizontal Movement
-        moveInput = Input.GetAxisRaw("Horizontal"); 
-        //moveInput = Input.GetAxis("Horizontal");
+        //moveInput = Input.GetAxisRaw("Horizontal"); 
+        moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
         //transform.Translate(new Vector2(moveInput * speed, 0) * Time.deltaTime * speed);
 
@@ -81,6 +88,10 @@ public class PlayerController : MonoBehaviour
         {
             Flip();
         }
+    }
+    // Update is called once per frame
+    void Update()
+    {
 
         // Player Jump
         if (Input.GetButtonDown("Jump") && isGrounded(layersPlayerCanStand))
@@ -90,6 +101,21 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
 
+        //Ruchi
+        // Update the Animator
+        animator.SetBool("IsPushing", pushingBox);
+
+        // Check if the spacebar is pressed
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // Set the IsJumping parameter to true
+            animator.SetBool("IsJumping", true);
+        }
+        else
+        {
+            // Set IsJumping to false when the spacebar is not pressed
+            animator.SetBool("IsJumping", false);
+        }
 
         // Resizing (Scale)
         if (Input.GetKey(KeyCode.Alpha1)) // Small
@@ -214,18 +240,23 @@ public class PlayerController : MonoBehaviour
 
 
     // When Pushing Boxes, change player movement into constant speed
+    
     void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Box"))
         {
             pushingBox = true;
+            rb.interpolation = RigidbodyInterpolation2D.None;
         }
     }
+   
     void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Box"))
         {
             pushingBox = false;
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
     }
 

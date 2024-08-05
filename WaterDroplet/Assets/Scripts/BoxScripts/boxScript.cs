@@ -13,9 +13,11 @@ public class NewBehaviourScript : MonoBehaviour
 
 
 
-    private float pushSpeed;
-    public float pushSpeedFast = 0.9f;
-    public float pushSpeedSlow = 0.6f; 
+    //private float pushSpeed;
+    //public float pushSpeedFast = 0.9f;
+    //public float pushSpeedSlow = 0.6f;
+
+
 
     private bool isBeingPushed = false;
     private int pushDirection = 0; // -1 = left, 1 = right
@@ -27,6 +29,7 @@ public class NewBehaviourScript : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rb.mass = 40f;
     }
 
     private void FixedUpdate()
@@ -70,19 +73,18 @@ public class NewBehaviourScript : MonoBehaviour
         if (playerController.playerSize < boxSize && rb.velocity.y == 0)
         {
             rb.bodyType = RigidbodyType2D.Static;
-            pushSpeed = 0;
+
         }
         // Able to move this boxe when the player size is same or bigger
         else if (playerController.playerSize == boxSize)
         {
             rb.bodyType = RigidbodyType2D.Dynamic;
-            pushSpeed = pushSpeedSlow;
-
+            rb.mass = 40f;
         }
         else if (playerController.playerSize > boxSize)
         {
             rb.bodyType = RigidbodyType2D.Dynamic;
-            pushSpeed = pushSpeedFast;
+            rb.mass = 25f;
         }
     }
 
