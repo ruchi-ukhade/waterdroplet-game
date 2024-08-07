@@ -21,6 +21,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForceS;
     [SerializeField] private float jumpForceM;
     [SerializeField] private float jumpForceL;
+    [SerializeField] private float jumpBufferTimeAvaliable = 0f;
+    [SerializeField] private float jumpBufferTime = 0.2f;
+    [SerializeField] private float coyoteTimeAvaliable = 0f;
+    [SerializeField] private float coyoteTime = 0.1f;
 
     // Player Size
     // 1 = small; 2 = meidum; 3 = large
@@ -96,10 +100,25 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // coyoteTime
+        coyoteTimeAvaliable -= Time.deltaTime;
+        if (isGrounded(layersPlayerCanStand))
+        {
+            coyoteTimeAvaliable = coyoteTime;
+        }
+
+        // Jump buffer
+            jumpBufferTimeAvaliable -= Time.deltaTime; 
+        if (Input.GetButtonDown("Jump")){
+            jumpBufferTimeAvaliable = jumpBufferTime; // when jump is pressed set jump buffer time
+        }
+        
 
         // Player Jump
-        if (Input.GetButtonDown("Jump") && isGrounded(layersPlayerCanStand))
+        if ((jumpBufferTimeAvaliable > 0) && (coyoteTimeAvaliable > 0))
         {
+            jumpBufferTimeAvaliable = 0;
+            coyoteTimeAvaliable = 0;
             rb.velocity = Vector2.zero;
             //rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
