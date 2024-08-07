@@ -66,6 +66,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+
     private void FixedUpdate()
     {
         if (isGrounded(layersPlayerCanStand))
@@ -89,6 +90,9 @@ public class PlayerController : MonoBehaviour
             Flip();
         }
     }
+
+
+
     // Update is called once per frame
     void Update()
     {
@@ -100,6 +104,7 @@ public class PlayerController : MonoBehaviour
             //rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
+
 
         //Ruchi
         // Update the Animator
@@ -117,7 +122,10 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsJumping", false);
         }
 
-        // Resizing (Scale)
+
+
+
+        // Manual Resizing (Scale) for debug
         if (Input.GetKey(KeyCode.Alpha1)) // Small
         {
             transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * 0.12f, 0.12f);
@@ -138,11 +146,14 @@ public class PlayerController : MonoBehaviour
         }
 
 
+
+
         // Grow & Shrink based on sand and water
         if (isInWater)
         {
+            // TODO: add sucking water animation here
             timeInSand = 0f;
-            timeInWater += Time.deltaTime;
+            timeInWater = timeInWater + Time.deltaTime;
             if(timeInWater >= growthTimeNeeded)
             {
                 changeSize(true); //grow bigger
@@ -153,8 +164,9 @@ public class PlayerController : MonoBehaviour
 
         if (isInSand)
         {
+            // TODO: add getting drier animation here
             timeInWater = 0f;
-            timeInSand += Time.deltaTime;
+            timeInSand = timeInSand + Time.deltaTime;
             if (timeInSand >= shrinkTimeNeeded)
             {
                 changeSize(false); //shrink smaller
@@ -163,9 +175,6 @@ public class PlayerController : MonoBehaviour
         }
         //else { timeInSand = 0f; }
 
-        // Determine whether the player is standing on a box
-        standOnBox = isGrounded(boxLayer);
-      
     }
 
 
@@ -200,7 +209,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-    // Manual change Size for debug
+    // Helper function to change water droplet Size
     private void changeSize(bool getBigger)
     {
         if (getBigger && playerSize != 3) // touch water, getting bigger
@@ -239,11 +248,12 @@ public class PlayerController : MonoBehaviour
 
 
 
-    // When Pushing Boxes, change player movement into constant speed
-    
+    // When Pushing Boxes, set bool values for pushingBox   
     void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Box"))
+        // Determine whether the player is standing on a box
+        standOnBox = isGrounded(boxLayer);
+        if (collision.gameObject.CompareTag("Box") && !standOnBox)
         {
             pushingBox = true;
             rb.interpolation = RigidbodyInterpolation2D.None;
@@ -278,6 +288,7 @@ public class PlayerController : MonoBehaviour
         // On the ground : raycastHit.collider is not null
         return raycastHit.collider != null;
     }
+
 
     // Change player direction
     void Flip()
