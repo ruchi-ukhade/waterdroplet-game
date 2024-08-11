@@ -21,17 +21,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForceS;
     [SerializeField] private float jumpForceM;
     [SerializeField] private float jumpForceL;
-    [SerializeField] private float jumpBufferTimeAvaliable = 0f;
+    private float jumpBufferTimeAvaliable = 0f;
     [SerializeField] private float jumpBufferTime = 0.2f;
-    [SerializeField] private float coyoteTimeAvaliable = 0f;
+    private float coyoteTimeAvaliable = 0f;
     [SerializeField] private float coyoteTime = 0.1f;
 
     // Player Size
     // 1 = small; 2 = meidum; 3 = large
     [Range(1, 3)] public int playerSize;
-    [SerializeField] private Vector2 playerSizeS = new Vector2(0.12f, 0.12f);
-    [SerializeField] private Vector2 playerSizeM = new Vector2(0.2f, 0.2f);
-    [SerializeField] private Vector2 playerSizeL = new Vector2(0.3f, 0.3f);
+    // Player Death
+    private bool isDead = false;
+    public float respawnDelay = 0.1f;
 
 
     // Player Physics
@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
     public float shrinkTimeNeeded = 1f;
 
     // Pushing Boxes
-    public bool standOnBox = false;
+    private bool standOnBox = false;
     private bool pushingBox = false;
 
     // Start is called before the first frame update
@@ -73,6 +73,10 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // If player is dead, do nothing
+        if (isDead) return;
+        
+
         if (isGrounded(layersPlayerCanStand))
         {
             speed = groundSpeed;
@@ -83,10 +87,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Player horizontal Movement
-        //moveInput = Input.GetAxisRaw("Horizontal"); 
         moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
-        //transform.Translate(new Vector2(moveInput * speed, 0) * Time.deltaTime * speed);
 
         // Fliping player direction
         if ((facingRight == false && moveInput > 0) || (facingRight == true && moveInput < 0))
@@ -100,6 +102,9 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // If player is dead, do nothing
+        if (isDead) return;
+
         // coyoteTime
         coyoteTimeAvaliable -= Time.deltaTime;
         if (isGrounded(layersPlayerCanStand))
@@ -194,9 +199,17 @@ public class PlayerController : MonoBehaviour
         }
         //else { timeInSand = 0f; }
 
+
+        // Suicide restart
+        if (Input.GetKey(KeyCode.R))
+        {
+            Die();
+        }
+
     }
 
 
+    #region Change player size
     // Enter Sand & Water
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -210,7 +223,8 @@ public class PlayerController : MonoBehaviour
 
             if (playerSize == 1)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                Die();
             }
         }
     }
@@ -228,42 +242,85 @@ public class PlayerController : MonoBehaviour
 
 
 
-    // Helper function to change water droplet Size
+    // Change water droplet Size
     private void changeSize(bool getBigger)
     {
         if (getBigger && playerSize != 3) // touch water, getting bigger
         {
             if (playerSize == 1)
             {
-                transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * 0.2f, 0.2f);
-                jumpForce = jumpForceM;
+                setSize(2, 0.2f, jumpForceM);
             }
             else if (playerSize == 2)
             {
-                transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * 0.3f, 0.3f);
-                jumpForce = jumpForceL;
+                setSize(3, 0.3f, jumpForceL);
             }
-            playerSize++;
         }
         else if (!getBigger) // touch sand, getting smaller
         {
             if (playerSize == 1)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                Die();
             }
             if (playerSize == 3)
             {
-                transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * 0.2f, 0.2f);
-                jumpForce = jumpForceM;
+                setSize(2, 0.2f, jumpForceM);
             }
             else if (playerSize == 2)
             {
-                transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * 0.12f, 0.12f);
-                jumpForce = jumpForceS;
+                setSize(1, 0.12f, jumpForceS);
             }
-            playerSize--;
         }
     }
+
+    // Set player's size
+    private void setSize(int size, float scale, float newJumpforce)
+    {
+        playerSize = size;
+        transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
+        jumpForce = newJumpforce;
+    }
+    #endregion
+
+
+
+    #region Player Death and respwan
+    //Player Death
+    public void Die()
+    {
+        if (!isDead)
+        {
+            isDead = true;
+            // Disable player movements
+            rb.velocity = Vector2.zero;
+            rb.simulated = false;
+
+            // Start respawn process
+            StartCoroutine(RespawnCoroutine());
+        }
+    }
+    // Player Respawn
+    private IEnumerator RespawnCoroutine()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+        // Set player size back to when it touches the check point
+        int size = GameManager.Instance.GetPlayerSize();
+        if (size == 1) { setSize(size, 0.12f, jumpForceS); }
+        else if (size == 2) { setSize(size, 0.2f, jumpForceM); }
+        else if (size == 3) { setSize(size, 0.3f, jumpForceL); }
+
+        // Reset the level
+        LevelManager.Instance.ResetLevel();
+
+        // Reset position to last checkpoint
+        transform.position = GameManager.Instance.GetLastCheckpoint();
+        yield return new WaitForSeconds(0.8f);
+        // Re-enable player control
+        isDead = false;
+        rb.simulated = true;
+    }
+    #endregion
 
 
 

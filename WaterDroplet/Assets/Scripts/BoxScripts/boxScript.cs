@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour
+public class NewBehaviourScript : MonoBehaviour, IResettable
 {
 
     public PlayerController playerController;
@@ -11,23 +11,18 @@ public class NewBehaviourScript : MonoBehaviour
     // 1 = small; 2 = meidum; 3 = large
     [SerializeField] [Range(1, 3)] private int boxSize;
 
-
-
-    //private float pushSpeed;
-    //public float pushSpeedFast = 0.9f;
-    //public float pushSpeedSlow = 0.6f;
-
-
-
     private bool isBeingPushed = false;
     private int pushDirection = 0; // -1 = left, 1 = right
 
+    private Vector2 initialPosition;
 
 
-    
     // Start is called before the first frame update
     void Start()
     {
+        // Register Resettable Object
+        LevelManager.Instance.RegisterResettableObject(this);
+
         rb = GetComponent<Rigidbody2D>();
         rb.mass = 40f;
     }
@@ -45,26 +40,7 @@ public class NewBehaviourScript : MonoBehaviour
         }
     }
 
-/*
-    void FixedUpdate()
-    {
-        // Cannot push when size is small, box is static
-        // Prevent pushing when character is on top of the box
-        if (rb.bodyType == RigidbodyType2D.Static ||
-            playerController.standOnBox == true) 
-        {
-            return;
-        }
-        else if (isBeingPushed)
-        {
-            rb.velocity = new Vector2(pushSpeed * pushDirection, rb.velocity.y);
-        }
-        else // when stop pushing, instantly stop
-        {
-            rb.velocity = new Vector2(0, rb.velocity.y);
-        }
-    }
-*/
+
 
     // Update is called once per frame
     void Update()
@@ -115,5 +91,15 @@ public class NewBehaviourScript : MonoBehaviour
             isBeingPushed = false;
         }
     }
-    
+
+    public void SaveInitialState()
+    {
+        initialPosition = transform.position;
+    }
+
+    public void ResetToInitialState()
+    {
+        transform.position = initialPosition;        
+    }
+
 }
