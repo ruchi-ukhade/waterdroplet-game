@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
 
 
     // Player Physics
-    private Rigidbody2D rb;
+    public Rigidbody2D rb;
     [SerializeField] private Collider2D _feetCollider;
     [SerializeField] private Collider2D _bodyCollider;
 
