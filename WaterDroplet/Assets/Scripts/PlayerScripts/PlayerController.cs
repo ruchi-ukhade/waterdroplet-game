@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public float moveInput;
     private bool facingRight = true;
 
+
     // Jump
     private float jumpForce;
     [SerializeField] private float jumpForceS;
@@ -26,12 +27,18 @@ public class PlayerController : MonoBehaviour
     private float coyoteTimeAvaliable = 0f;
     [SerializeField] private float coyoteTime = 0.1f;
 
+
     // Player Size
     // 1 = small; 2 = meidum; 3 = large
     [Range(1, 3)] public int playerSize;
+    private Vector2 initialSize;
+    private Vector2 targetSize;
+    public float growDuration = 0.5f;
+
     // Player Death
     private bool isDead = false;
     public float respawnDelay = 0.1f;
+
 
 
     // Player Physics
@@ -122,6 +129,7 @@ public class PlayerController : MonoBehaviour
         // Player Jump
         if ((jumpBufferTimeAvaliable > 0) && (coyoteTimeAvaliable > 0))
         {
+
             jumpBufferTimeAvaliable = 0;
             coyoteTimeAvaliable = 0;
             rb.velocity = Vector2.zero;
@@ -277,10 +285,35 @@ public class PlayerController : MonoBehaviour
     // Set player's size
     private void setSize(int size, float scale, float newJumpforce)
     {
-        playerSize = size;
-        transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
+        playerSize = size; // player size number (1,2,3)
+        initialSize = transform.localScale; // actual current player size
+        targetSize = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
         jumpForce = newJumpforce;
+
+        StartCoroutine(ResizeOverTime());
+        //transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
+
     }
+
+    private IEnumerator ResizeOverTime()
+    {
+        float elapsedTime = 0f; // inital time
+     
+        while (elapsedTime < growDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            // value t between 0 and 1 that represents the progress of the growth.
+            float t = Mathf.Clamp01(elapsedTime / growDuration);
+            // Lerp from initial to target by t%
+            transform.localScale = Vector2.Lerp(initialSize, targetSize, t);
+            yield return null;
+
+            // Ensure the final size is exactly the target size
+            transform.localScale = targetSize;
+        }
+    }
+
+
     #endregion
 
 
