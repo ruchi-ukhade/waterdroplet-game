@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     public float groundSpeed;
     public float airSpeed;
     public float moveInput;
-    private bool facingRight = true;
+    //[SerializeField] private bool facingRight = true;
 
 
     // Jump
@@ -97,11 +97,17 @@ public class PlayerController : MonoBehaviour
         moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
 
-        // Fliping player direction
-        if ((facingRight == false && moveInput > 0) || (facingRight == true && moveInput < 0))
+        
+        if (moveInput > 0) // moving right
         {
-            Flip();
+            transform.localScale = new Vector2(Mathf.Abs(transform.localScale.x), transform.localScale.y);
+            
         }
+        else if (moveInput < 0) // moving left
+        {
+            transform.localScale = new Vector2(-1 * Mathf.Abs(transform.localScale.x), transform.localScale.y);
+        }
+
     }
 
 
@@ -400,13 +406,15 @@ public class PlayerController : MonoBehaviour
 
 
     // Change player direction
+    /*
     void Flip()
     {
         facingRight = !facingRight;
-        Vector3 Scaler = transform.localScale;
+        Vector2 Scaler = transform.localScale;
         Scaler.x *= -1;
         transform.localScale = Scaler;
     }
+    */
 
 
 
