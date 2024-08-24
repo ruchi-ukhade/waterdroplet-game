@@ -5,8 +5,8 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    private Vector2 lastCheckpoint;
-    private int playerSize; // record player size when it reaches a checkpoint
+    //private Vector2 lastCheckpoint;
+    //private int playerSize; // record player size when it reaches a checkpoint
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+/*
     // Setter and Getter for check point position
     public void SetCheckpoint(Vector2 position)
     {
@@ -43,4 +43,5 @@ public class GameManager : MonoBehaviour
     {
         return playerSize;
     }
+*/
 }

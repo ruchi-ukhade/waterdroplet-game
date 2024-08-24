@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
     //Animation
     public Animator animator;
 
+    // Lock movements
+    public bool movementEnabled = true;
+
     // Movement 
     private float speed;
     public float groundSpeed;
@@ -68,9 +71,11 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        jumpForce = jumpForceS;
         layersPlayerCanStand = LayerMask.GetMask("Ground", "Box");
+
+        // Initalize player size
+        jumpForce = jumpForceL;
+        playerSize = 3;
 
         //Ruchi
         //get the Animator component attached to the same GameObject
@@ -80,6 +85,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // If player movement is diaabled, do nothing
+        if (movementEnabled == false) return;
         // If player is dead, do nothing
         if (isDead) return;
         
@@ -115,8 +122,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // If player movement is diaabled, do nothing
+        if (movementEnabled == false) return;        
         // If player is dead, do nothing
         if (isDead) return;
+
+        // Suicide restart
+        if (Input.GetKey(KeyCode.R))
+        {
+            Die();
+        }
+
 
         // coyoteTime
         coyoteTimeAvaliable -= Time.deltaTime;
@@ -141,6 +157,9 @@ public class PlayerController : MonoBehaviour
             rb.velocity = Vector2.zero;
             //rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+
+            // Increment player jump stats
+            LevelManager.Instance.incrementJumps();
         }
 
 
@@ -214,11 +233,7 @@ public class PlayerController : MonoBehaviour
         //else { timeInSand = 0f; }
 
 
-        // Suicide restart
-        if (Input.GetKey(KeyCode.R))
-        {
-            Die();
-        }
+
 
     }
 
@@ -257,7 +272,7 @@ public class PlayerController : MonoBehaviour
 
 
     // Change water droplet Size
-    private void changeSize(bool getBigger)
+    public void changeSize(bool getBigger)
     {
         if (getBigger && playerSize != 3) // touch water, getting bigger
         {
@@ -299,6 +314,8 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(ResizeOverTime());
         //transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
 
+        //Increment player size changes stats
+        LevelManager.Instance.incrementSizeChanges();
     }
 
     private IEnumerator ResizeOverTime()
@@ -344,7 +361,7 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(respawnDelay);
         // Set player size back to when it touches the check point
-        int size = GameManager.Instance.GetPlayerSize();
+        int size = LevelManager.Instance.GetPlayerSize();
         if (size == 1) { setSize(size, 0.12f, jumpForceS); }
         else if (size == 2) { setSize(size, 0.2f, jumpForceM); }
         else if (size == 3) { setSize(size, 0.3f, jumpForceL); }
@@ -353,11 +370,14 @@ public class PlayerController : MonoBehaviour
         LevelManager.Instance.ResetLevel();
 
         // Reset position to last checkpoint
-        transform.position = GameManager.Instance.GetLastCheckpoint();
+        transform.position = LevelManager.Instance.GetLastCheckpoint();
         yield return new WaitForSeconds(0.8f);
         // Re-enable player control
         isDead = false;
         rb.simulated = true;
+
+        // Increment retry counts
+        LevelManager.Instance.incrementRetries();
     }
     #endregion
 
@@ -405,16 +425,14 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    // Change player direction
-    /*
-    void Flip()
+
+    // Enable or disable character movement
+    public void SetMovement(bool moveStats)
     {
-        facingRight = !facingRight;
-        Vector2 Scaler = transform.localScale;
-        Scaler.x *= -1;
-        transform.localScale = Scaler;
+        movementEnabled = moveStats;
+        // Stop player
+        rb.velocity = Vector2.zero;
     }
-    */
 
 
 

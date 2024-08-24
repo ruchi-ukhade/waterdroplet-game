@@ -88,15 +88,15 @@ AnimationClip:
         time: 0
         value: {x: -15.802002, y: -0.4100113, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
-        outSlope: {x: 8.779385, y: 0, z: 0}
+        outSlope: {x: 8.779385, y: 0.026461674, z: 0}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 13
-        value: {x: 98.33, y: -0.4100113, z: 0}
-        inSlope: {x: 8.779385, y: -0, z: -0}
+        value: {x: 98.33, y: -0.06600952, z: 0}
+        inSlope: {x: 8.779385, y: 0.026461674, z: -0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
         weightedMode: 0
@@ -185,15 +185,15 @@ AnimationClip:
         time: 0
         value: -0.4100113
         inSlope: 0
-        outSlope: 0
+        outSlope: 0.026461674
         tangentMode: 69
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 13
-        value: -0.4100113
-        inSlope: -0
+        value: -0.06600952
+        inSlope: 0.026461674
         outSlope: 0
         tangentMode: 69
         weightedMode: 0
@@ -483,7 +483,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
-  m_Name: Opening Cutscene Timeline
+  m_Name: Title Cutscene Timeline
   m_EditorClassIdentifier: 
   m_Version: 0
   m_Tracks:

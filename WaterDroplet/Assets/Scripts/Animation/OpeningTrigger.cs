@@ -8,6 +8,8 @@ public class OpeningTrigger : MonoBehaviour
     public PlayableDirector timeline;
     public PlayerController playerController;
 
+    public float timeToShrink = 4.3f;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -19,11 +21,15 @@ public class OpeningTrigger : MonoBehaviour
     private void StartCutscene()
     {
         // Disable player control
-        playerController.enabled = false;
+        playerController.SetMovement(false);
+        //playerController.enabled = false;
         //playerController.rb.velocity = Vector2.zero;
 
         // Start the timeline
         timeline.Play();
+
+        // Start player size change over time
+        StartCoroutine(ChangeSizeDuringTimeline());
 
         // Subscribe to the timeline's stopped event
         timeline.stopped += OnCutsceneEnded;
@@ -35,9 +41,21 @@ public class OpeningTrigger : MonoBehaviour
     private void OnCutsceneEnded(PlayableDirector director)
     {
         // Re-enable player control
-        playerController.enabled = true;
+        //playerController.enabled = true;
+        playerController.SetMovement(true);
 
         // Unsubscribe from the event
         timeline.stopped -= OnCutsceneEnded;
+    }
+
+    // change player size over time
+    private IEnumerator ChangeSizeDuringTimeline()
+    {
+        // After a while shrink character's size
+        yield return new WaitForSeconds(timeToShrink);
+        playerController.changeSize(false);
+
+        yield return new WaitForSeconds(timeToShrink);
+        playerController.changeSize(false);
     }
 }
