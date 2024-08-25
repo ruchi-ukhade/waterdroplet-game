@@ -67,6 +67,7 @@ public class PlayerController : MonoBehaviour
     private bool standOnBox = false;
     private bool pushingBox = false;
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -123,7 +124,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // If player movement is diaabled, do nothing
-        if (movementEnabled == false) return;        
+        if (movementEnabled == false) return;
         // If player is dead, do nothing
         if (isDead) return;
 
@@ -142,11 +143,11 @@ public class PlayerController : MonoBehaviour
         }
 
         // Jump buffer
-            jumpBufferTimeAvaliable -= Time.deltaTime; 
-        if (Input.GetButtonDown("Jump")){
+        jumpBufferTimeAvaliable -= Time.deltaTime;
+        if (Input.GetButtonDown("Jump")) {
             jumpBufferTimeAvaliable = jumpBufferTime; // when jump is pressed set jump buffer time
         }
-        
+
 
         // Player Jump
         if ((jumpBufferTimeAvaliable > 0) && (coyoteTimeAvaliable > 0))
@@ -161,7 +162,6 @@ public class PlayerController : MonoBehaviour
             // Increment player jump stats
             LevelManager.Instance.incrementJumps();
         }
-
 
         //Ruchi
         // Update the Animator
@@ -178,8 +178,6 @@ public class PlayerController : MonoBehaviour
             // Set IsJumping to false when the spacebar is not pressed
             animator.SetBool("IsJumping", false);
         }
-
-
 
 
         // Manual Resizing (Scale) for debug
@@ -311,6 +309,10 @@ public class PlayerController : MonoBehaviour
         targetSize = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
         jumpForce = newJumpforce;
 
+        //Ruchi 
+        // Start shivering animation
+        animator.SetBool("IsShivering", true);
+
         StartCoroutine(ResizeOverTime());
         //transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
 
@@ -333,6 +335,10 @@ public class PlayerController : MonoBehaviour
 
             // Ensure the final size is exactly the target size
             transform.localScale = targetSize;
+
+            //Ruchi
+            // Stop shivering animation after resizing is complete
+            animator.SetBool("IsShivering", false);
         }
     }
 
