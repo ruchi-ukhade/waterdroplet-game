@@ -13,6 +13,8 @@ public class EndGameManager : MonoBehaviour
 
     // Move player to right position
     public Vector2 playerEndPosition;
+    public float playerEndXPosition;
+
     public float moveSpeed = 5f;
     public GameObject player;
     private Rigidbody2D playerRb;
@@ -20,14 +22,20 @@ public class EndGameManager : MonoBehaviour
 
 
     // player stats
-    private int retries = 0;
-    private int jumps = 0;
-    private int sizeChanges = 0;
+    //private int retries = 0;
+    //private int jumps = 0;
+    //private int sizeChanges = 0;
     public Text retriesText;
     public Text jumpsText;
     public Text sizeChangesText;
     public float timeForOneIncrement = 0.1f;
 
+
+    // Stars
+    public GameObject star1;
+    public GameObject star2;
+    public GameObject star3;
+    public float timeBetweenStars;
 
     private void Start()
     {
@@ -66,14 +74,24 @@ public class EndGameManager : MonoBehaviour
         StartCoroutine(IncrementStats(jumpsText, 0, LevelManager.Instance.getJumps()));
         StartCoroutine(IncrementStats(sizeChangesText, 0, LevelManager.Instance.getSizeChanges()));
 
+        StartCoroutine(ShowStars(playerController.playerSize, timeBetweenStars));
+
     }
 
 
     private IEnumerator MovePlayerToPosition()
     {
-        while (playerRb.position != playerEndPosition)
+        while (playerRb.position.x != playerEndXPosition)
         {
-            playerRb.position = Vector2.MoveTowards(playerRb.position, playerEndPosition, moveSpeed * Time.deltaTime);
+            // Calculate new X position
+            float newX = Mathf.MoveTowards(playerRb.position.x, playerEndXPosition, moveSpeed * Time.deltaTime);
+
+            // Create new position vector, keeping Y the same
+            Vector2 newPosition = new Vector2(newX, playerRb.position.y);
+
+            // Apply new position
+            playerRb.position = newPosition;
+
             yield return null;
         }
     }
@@ -103,5 +121,29 @@ public class EndGameManager : MonoBehaviour
             yield return new WaitForSeconds(timeForOneIncrement);
         }
     }
+
+    // Show Stars
+    private IEnumerator ShowStars(int starNumber, float timeBetweenStars)
+    {
+        if(starNumber >= 1)
+        {
+            Debug.Log("1");
+            star1.SetActive(true);
+            yield return new WaitForSeconds(timeBetweenStars);
+        }
+        if (starNumber >= 2)
+        {
+            Debug.Log("1");
+            star2.SetActive(true);
+            yield return new WaitForSeconds(timeBetweenStars);
+        }
+        if (starNumber == 3)
+        {
+            Debug.Log("1");
+            star3.SetActive(true);
+
+        }
+    }
+
 
 }

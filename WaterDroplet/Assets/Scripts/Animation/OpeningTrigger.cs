@@ -25,6 +25,8 @@ public class OpeningTrigger : MonoBehaviour
         //playerController.enabled = false;
         //playerController.rb.velocity = Vector2.zero;
 
+        SoundManager.StopSound(SoundType.FORESTAMBIENCE, 5f);
+
         // Start the timeline
         timeline.Play();
 

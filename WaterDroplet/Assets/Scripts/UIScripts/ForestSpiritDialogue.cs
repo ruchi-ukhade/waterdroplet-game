@@ -42,22 +42,26 @@ public class ForestSpiritDialog : MonoBehaviour
     // Update is called once per frame
     void Update()
     {        
-        if (Input.GetKeyDown(KeyCode.Return) && enterEnabled)
+        if (Input.GetKeyDown(KeyCode.Return))
         {
-            if (isTyping)
-            {
-                StopCoroutine(typing);
-                dialogText.text = dialogue[index];
-                isTyping = false;
+            skipDialogue();
+        }
+    }
 
-                //stop sound
-                SoundManager.StopSound();
-            }
-            else if (!isTyping)
-            {
-                nextDialogue();
-            }
-            
+    public void skipDialogue()
+    {
+        if (isTyping && enterEnabled)
+        {
+            StopCoroutine(typing);
+            dialogText.text = dialogue[index];
+            isTyping = false;
+
+            //stop sound
+            SoundManager.StopSound(SoundType.FORESTVOICE, 0.1f);
+        }
+        else if (!isTyping && enterEnabled)
+        {
+            nextDialogue();
         }
     }
 
@@ -94,7 +98,7 @@ public class ForestSpiritDialog : MonoBehaviour
     private IEnumerator Typing()
     {
         // Play forest spirit voice sound
-        SoundManager.PlaySound(SoundType.FORESTVOICE, 1);
+        SoundManager.PlaySound(SoundType.FORESTVOICE, 1, 0.2f);
 
         isTyping = true;
         foreach (char letter in dialogue[index].ToCharArray())
@@ -104,6 +108,7 @@ public class ForestSpiritDialog : MonoBehaviour
             
         }
         isTyping = false;
+        SoundManager.StopSound(SoundType.FORESTVOICE, 0.1f);
     }
 
 

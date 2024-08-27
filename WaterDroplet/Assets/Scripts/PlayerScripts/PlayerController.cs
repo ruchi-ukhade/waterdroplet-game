@@ -68,6 +68,11 @@ public class PlayerController : MonoBehaviour
     private bool pushingBox = false;
 
 
+    // Landing animation
+    private bool jumped = false;
+    private bool grounded = false;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -116,6 +121,17 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector2(-1 * Mathf.Abs(transform.localScale.x), transform.localScale.y);
         }
 
+
+        // Stop pushing when character stop
+        if (pushingBox == true && moveInput == 0)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+            SoundManager.StopSound(SoundType.PUSH, 0.1f);
+            pushingBox = false;
+        }
+
     }
 
 
@@ -123,6 +139,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        grounded = isGrounded(layersPlayerCanStand);
+
         // If player movement is diaabled, do nothing
         if (movementEnabled == false) return;
         // If player is dead, do nothing
@@ -152,6 +170,8 @@ public class PlayerController : MonoBehaviour
         // Player Jump
         if ((jumpBufferTimeAvaliable > 0) && (coyoteTimeAvaliable > 0))
         {
+            // Set the IsJumping parameter to true
+            animator.SetBool("IsJumping", true);
 
             jumpBufferTimeAvaliable = 0;
             coyoteTimeAvaliable = 0;
@@ -161,24 +181,18 @@ public class PlayerController : MonoBehaviour
 
             // Increment player jump stats
             LevelManager.Instance.incrementJumps();
+
+            SoundManager.PlaySound(SoundType.JUMP, 0.3f);
+            jumped = true;
+        }
+        else
+        {
+            animator.SetBool("IsJumping", false);
         }
 
         //Ruchi
         // Update the Animator
         animator.SetBool("IsPushing", pushingBox);
-
-        // Check if the spacebar is pressed
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            // Set the IsJumping parameter to true
-            animator.SetBool("IsJumping", true);
-        }
-        else
-        {
-            // Set IsJumping to false when the spacebar is not pressed
-            animator.SetBool("IsJumping", false);
-        }
-
 
         // Manual Resizing (Scale) for debug
         if (Input.GetKey(KeyCode.Alpha1)) // Small
@@ -202,11 +216,20 @@ public class PlayerController : MonoBehaviour
 
 
 
+        // Shiver aniamtion
+        if (playerSize >= 3) { animator.SetBool("IsShivering", false); }
+        else { animator.SetBool("IsShivering", (isInWater || isInSand)); }
 
         // Grow & Shrink based on sand and water
         if (isInWater)
         {
-            // TODO: add sucking water animation here
+            //Ruchi 
+            // Start shivering animation
+            if (playerSize < 3)
+            {
+                //animator.SetBool("IsShivering", true);
+            }
+
             timeInSand = 0f;
             timeInWater = timeInWater + Time.deltaTime;
             if(timeInWater >= growthTimeNeeded)
@@ -219,7 +242,10 @@ public class PlayerController : MonoBehaviour
 
         if (isInSand)
         {
-            // TODO: add getting drier animation here
+            //Ruchi 
+            // Start shivering animation
+            //animator.SetBool("IsShivering", true);
+
             timeInWater = 0f;
             timeInSand = timeInSand + Time.deltaTime;
             if (timeInSand >= shrinkTimeNeeded)
@@ -260,10 +286,12 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Water"))
         {
             isInWater = false;
+            //animator.SetBool("IsShivering", false);
         }
         else if (other.CompareTag("Sand"))
         {
             isInSand = false;
+            //animator.SetBool("IsShivering", false);
         }
     }
 
@@ -309,9 +337,7 @@ public class PlayerController : MonoBehaviour
         targetSize = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
         jumpForce = newJumpforce;
 
-        //Ruchi 
-        // Start shivering animation
-        animator.SetBool("IsShivering", true);
+
 
         StartCoroutine(ResizeOverTime());
         //transform.localScale = new Vector2(Mathf.Sign(transform.localScale.x) * scale, scale);
@@ -322,6 +348,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator ResizeOverTime()
     {
+        //animator.SetBool("IsShivering", true);
         float elapsedTime = 0f; // inital time
      
         while (elapsedTime < growDuration)
@@ -332,14 +359,13 @@ public class PlayerController : MonoBehaviour
             // Lerp from initial to target by t%
             transform.localScale = Vector2.Lerp(initialSize, targetSize, t);
             yield return null;
-
-            // Ensure the final size is exactly the target size
-            transform.localScale = targetSize;
-
-            //Ruchi
-            // Stop shivering animation after resizing is complete
-            animator.SetBool("IsShivering", false);
         }
+
+        // Ensure the final size is exactly the target size
+        transform.localScale = targetSize;
+        //Ruchi
+        // Stop shivering animation after resizing is complete
+        //animator.SetBool("IsShivering", false);
     }
 
 
@@ -377,6 +403,9 @@ public class PlayerController : MonoBehaviour
 
         // Reset position to last checkpoint
         transform.position = LevelManager.Instance.GetLastCheckpoint();
+
+
+        animator.SetTrigger("isDead");
         yield return new WaitForSeconds(0.8f);
         // Re-enable player control
         isDead = false;
@@ -388,6 +417,17 @@ public class PlayerController : MonoBehaviour
     #endregion
 
 
+    // Collision againtst ground after a jump
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if ((collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Box"))
+            && jumped)
+        {            
+            animator.SetTrigger("landed");
+            jumped = false;
+        }
+
+    }
 
     // When Pushing Boxes, set bool values for pushingBox   
     void OnCollisionStay2D(Collision2D collision)
@@ -396,8 +436,15 @@ public class PlayerController : MonoBehaviour
         standOnBox = isGrounded(boxLayer);
         if (collision.gameObject.CompareTag("Box") && !standOnBox)
         {
+
+            if (pushingBox == false)
+            {
+                SoundManager.PlaySound(SoundType.PUSH);
+            }
             pushingBox = true;
             rb.interpolation = RigidbodyInterpolation2D.None;
+
+            
         }
     }
    
@@ -408,6 +455,8 @@ public class PlayerController : MonoBehaviour
             pushingBox = false;
             rb.velocity = new Vector2(0, rb.velocity.y);
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+            SoundManager.StopSound(SoundType.PUSH);
         }
     }
 

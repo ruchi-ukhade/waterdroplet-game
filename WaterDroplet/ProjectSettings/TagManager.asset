@@ -8,6 +8,7 @@ TagManager:
   - Sand
   - Ground
   - Box
+  - GamePlayMusic
   layers:
   - Default
   - TransparentFX
