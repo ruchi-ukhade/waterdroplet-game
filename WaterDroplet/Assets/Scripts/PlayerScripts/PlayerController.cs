@@ -439,7 +439,7 @@ public class PlayerController : MonoBehaviour
 
             if (pushingBox == false)
             {
-                SoundManager.PlaySound(SoundType.PUSH);
+                SoundManager.PlaySound(SoundType.PUSH, 0.5f);
             }
             pushingBox = true;
             rb.interpolation = RigidbodyInterpolation2D.None;
@@ -456,7 +456,7 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector2(0, rb.velocity.y);
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-            SoundManager.StopSound(SoundType.PUSH);
+            SoundManager.StopSound(SoundType.PUSH, 0.1f);
         }
     }
 

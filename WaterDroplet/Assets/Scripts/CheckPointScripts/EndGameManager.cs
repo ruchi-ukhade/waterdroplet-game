@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 
 public class EndGameManager : MonoBehaviour
@@ -21,7 +22,7 @@ public class EndGameManager : MonoBehaviour
     private PlayerController playerController;
 
 
-    // player stats
+    // Player stats
     //private int retries = 0;
     //private int jumps = 0;
     //private int sizeChanges = 0;
@@ -30,6 +31,10 @@ public class EndGameManager : MonoBehaviour
     public Text sizeChangesText;
     public float timeForOneIncrement = 0.1f;
 
+
+    // Timeline
+    public PlayableDirector timeline;
+    public float timelineLength;
 
     // Stars
     public GameObject star1;
@@ -58,10 +63,13 @@ public class EndGameManager : MonoBehaviour
     {
         playerController.SetMovement(false);
         StartCoroutine(MovePlayerToPosition());
+
+
         // Play ending animation
-        //endingAnimator.Play("EndingAnimation");
+        timeline.Play();
         // Wait for animation to finish
-        //yield return new WaitForSeconds(endingAnimator.GetCurrentAnimatorStateInfo(0).length);
+        yield return new WaitForSeconds(timelineLength);
+
 
         scoreboardCanvasGroup.alpha = 0f;
         scoreboardCanvas.gameObject.SetActive(true);
@@ -127,19 +135,16 @@ public class EndGameManager : MonoBehaviour
     {
         if(starNumber >= 1)
         {
-            Debug.Log("1");
             star1.SetActive(true);
             yield return new WaitForSeconds(timeBetweenStars);
         }
         if (starNumber >= 2)
         {
-            Debug.Log("1");
             star2.SetActive(true);
             yield return new WaitForSeconds(timeBetweenStars);
         }
         if (starNumber == 3)
         {
-            Debug.Log("1");
             star3.SetActive(true);
 
         }

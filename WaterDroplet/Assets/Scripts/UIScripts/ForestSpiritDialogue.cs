@@ -57,7 +57,7 @@ public class ForestSpiritDialog : MonoBehaviour
             isTyping = false;
 
             //stop sound
-            SoundManager.StopSound(SoundType.FORESTVOICE, 0.1f);
+            //SoundManager.StopSound(SoundType.FORESTVOICE, 0.1f);
         }
         else if (!isTyping && enterEnabled)
         {
@@ -78,6 +78,9 @@ public class ForestSpiritDialog : MonoBehaviour
         dialogText.text = "";
         index = 0;
 
+        // Play forest spirit voice sound
+        SoundManager.StopSound(SoundType.FORESTVOICE, 0.1f);
+
         StartCoroutine(FadeOut());
         //dialogPanal.SetActive(false);
         playerController.enabled = true;
@@ -89,17 +92,18 @@ public class ForestSpiritDialog : MonoBehaviour
         StartCoroutine(FadeIn());
         yield return new WaitForSeconds(fadeInDuration + fadeInDelay + 0.1f);
 
+        // Play forest spirit voice sound
+        SoundManager.PlaySound(SoundType.FORESTVOICE, 1, 0.2f);
 
         enterEnabled = true;
         typing = StartCoroutine(Typing());
+
+
     }
 
 
     private IEnumerator Typing()
-    {
-        // Play forest spirit voice sound
-        SoundManager.PlaySound(SoundType.FORESTVOICE, 1, 0.2f);
-
+    {        
         isTyping = true;
         foreach (char letter in dialogue[index].ToCharArray())
         {
@@ -108,7 +112,6 @@ public class ForestSpiritDialog : MonoBehaviour
             
         }
         isTyping = false;
-        SoundManager.StopSound(SoundType.FORESTVOICE, 0.1f);
     }
 
 
