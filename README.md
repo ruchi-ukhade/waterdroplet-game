@@ -1,4 +1,5 @@
-<img style="max-width: 200px" src="./readmeImgs/waterDroplet.webp" alt="Waterdroplet Baubi" />
+<img  src="./readmeImgs/Baubi.png" alt="Waterdroplet Baubi" />
+
 
 # The Last Drop of Hope
 ![Version badge](https://img.shields.io/badge/Version-0.0.3-blue) ![](https://img.shields.io/badge/Unity%202D%20Game-8A2BE2)
@@ -12,10 +13,10 @@ Embark on a quest with a water droplet called Baubi, as it journeys from a magic
 Game Category: 🏃2D Platformer, 🧩Puzzle Solving
 
 ## Gameplay Screenshots
-<div style = "display: flex; gap:10px">
-    <img style = "max-width: calc(50% - 5px)" src="./readmeImgs/gameplay2.png" alt="gameplay2" />
-    <img style = "max-width: calc(50% - 5px)" src="./readmeImgs/gameplay1.png" alt="gameplay1" />
-</div>
+
+<img src="./readmeImgs/gameplay2.png" alt="gameplay2" />
+<img src="./readmeImgs/gameplay1.png" alt="gameplay1" />
+
 
 ## Scource Code Installation
 1. Download Unity Hub: [https://unity.com/download](https://unity.com/download)
@@ -30,8 +31,8 @@ Game Category: 🏃2D Platformer, 🧩Puzzle Solving
 Hi! we are Halibut Studio, the 4-person team behind the game 
 **The Last Drop of Hope**.
 
-Team Members
-- [Jiecheng Chen](https://github.com/JasonARong) - Lead Developer, Gameplay/Level Designer
-- [Ruchi Ukhade](https://github.com/ruchi-ukhade) - Developer, Animator, Coordinator
-- Xindi Lyu - Art Director, Animator, Game Gaphics Designer
-- Zhiyu Zhang - Player Researcher
+**Team Members:** <br>
+[Jiecheng Chen](https://github.com/JasonARong) - Lead Developer, Gameplay/Level Designer <br>
+[Ruchi Ukhade](https://github.com/ruchi-ukhade) - Developer, Animator, Coordinator<br>
+Xindi Lyu - Art Director, Animator, Game Gaphics Designer<br>
+Zhiyu Zhang - Player Researcher
